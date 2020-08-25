@@ -1,4 +1,10 @@
 {
-  welcome: "Welcome to Tic Tac Toe Game",
-  player: "Choose who do you like to play with: type '1' if you want to play with other player. Type '2' if you want to play with a computer"
+  "welcome": "Welcome to Tic Tac Toe Game",
+  "player": "Choose who do you like to play with: type '1' if you want to play with other player. Type '2' if you want to play with a computer",
+  "playWithValidity": "Please enter only number 1 or 2",
+  "chooseSign": "Please choose which sign would you like to play with. Type 'x' or 'o'. ",
+  "signValidity": "Please enter only 'x' or 'o'.",
+  "chooseSquare": "Choose where to put your sign: ",
+  "ivalidSquare": "Please choose only lowerCase letters between a-c and numbers between 1-3. For example: a3",
+  "emptySquare": "Please choose an empty square"
 }
