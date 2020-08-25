@@ -1,0 +1,4 @@
+{
+  welcome: "Welcome to Tic Tac Toe Game",
+  player: "Choose who do you like to play with: type '1' if you want to play with other player. Type '2' if you want to play with a computer"
+}
