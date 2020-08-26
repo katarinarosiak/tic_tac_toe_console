@@ -1,62 +1,91 @@
 const readline = require('readline-sync');
 const messages = require('./messages_tic_tac_toe.json');
 
-//start the first loop
-//info: sign? computer? player? name?
-//display the board 
-//second game loop 
-// choice
-//print
-//check
-//choice 
-//until let taken = 9 || win = true
-// again? 
+const INITIAL_MARKER = ' ';
+const CROSS = 'X'
+const CIRCLE = "O"
+
 let gameBoard = {
-  a1: ' ',
-  a2: ' ',
-  a3: ' ',
-  b1: ' ',
-  b2: ' ',
-  b3: ' ',
-  c1: ' ',
-  c2: ' ',
-  c3: ' '
+  a1: INITIAL_MARKER,
+  a2: INITIAL_MARKER,
+  a3: INITIAL_MARKER,
+  b1: INITIAL_MARKER,
+  b2: INITIAL_MARKER,
+  b3: INITIAL_MARKER,
+  c1: INITIAL_MARKER,
+  c2: INITIAL_MARKER,
+  c3: INITIAL_MARKER
 };
 
-let winCombination = [];
+
+let player1 = {
+  name: "",
+  id: 'player1',
+  human: true,
+  chosenSign: CROSS,
+  points: 0
+}
+
+let player2 = {
+  name: "",
+  id: 'player2',
+  human: false,
+  chosenSign: CIRCLE,
+  points: 0
+}
 
 let gameStatus = {
-  signs: { cross: 'X', circle: 'O' },
   win: false,
+  tie: false,
   takenSquares: 0,
+  currentPlayer: player1,
+  points: `Scores: Player 1: ${player1.points} points, Player 2: ${player2.points} points`
 }
 
 
 
+
 print(messages.welcome);
+player1.name = print(messages.name);
 
 let validNums = ['1', '2'];
 let playWith = retriveInput(messages.player, messages.playWithValidity, validNums);
 
+updateWhoIsPlaying(playWith, player2);
 
-let validSigns = ["x", "o", "X", "O"];
-let player1 = retriveInput(messages.chooseSign, messages.signValidity, validSigns);
-let player2 = assignSignsToSecondPlayers(player1);
-let currentPlayer = player1
+let validSigns = ["x", "o"];
+let player1chosenSign = retriveInput(messages.chooseSign, messages.signValidity, validSigns);
+
+assignSignsToPlayers(player1chosenSign, player1, player2);
 
 printBoard(gameBoard);
-let validSquares = ["a1", "a2", "a3", "b1", "b2", "b3", "c1", "c2", "c3"];
-let squareId = retriveInput(messages.chooseSquare, messages.ivalidSquare, validSquares);
 
+while (!gameStatus.win || !gameStatus.tie) {
+  let validSquares = ["a1", "a2", "a3", "b1", "b2", "b3", "c1", "c2", "c3"];
+  let squareId = retriveInput(messages.chooseSquare, messages.ivalidSquare, validSquares);
 
-placeSignToBoard(currentPlayer, squareId, gameBoard);
-printBoard(gameBoard);
+  placeSignToBoard(squareId, gameBoard, gameStatus);
+  printBoard(gameBoard);
 
-checkIfWin();
-checkIfTie();
+  gameStatus.win = checkIfWin(gameBoard, gameStatus);
+  announceGameStatus(gameStatus.win, messages.congratulation);
 
-changeTurn(currentPlayer, gameStatus);
+  gameStatus.tie = checkIfTie(gameStatus.takenSquares);
+  announceGameStatus(gameStatus.tie, messages.tie);
 
+  let validAnswers = ["yes", "Yes", "Y", "y", "No", "NO", "no", "n", "N"];
+  if (gameStatus.win || gameStatus.tie) {
+    let playAgain = retriveInput(messages.playAgain, messages.invalidYesNo, validAnswers);
+    console.log(playAgain);
+    if (playAgain[0].toLowerCase === 'y') {
+      playAgain();
+    } else {
+      console.log();
+      return;
+    }
+  }
+  changeTurn(gameStatus);
+}
 
 
 
@@ -70,7 +99,7 @@ function validateInput(input, validInputs) {
   return validInputs.includes(input);
 }
 
-//print question, save input in var, validate input, keep getting until right, return input val. 
+
 function retriveInput(question, notValidMessage, validInputs) {
   print(question);
   let userAnswer = readline.question('');
@@ -85,9 +114,23 @@ function retriveInput(question, notValidMessage, validInputs) {
   return userAnswer;
 }
 
-function assignSignsToSecondPlayers(firstPlayer) {
-  if (firstPlayer.toUpperCase === "X") {
-    return "O";
+function updateWhoIsPlaying(userPlayWith, player2Obj) {
+  if (userPlayWith === '1') {
+    player2Obj.human = true;
+  } else {
+    player2Obj.human = false;
+  }
+}
+
+function assignSignsToPlayers(initialchosenSign, player1Obj, player2Obj) {
+  if (initialchosenSign === "x") {
+    player1Obj.chosenSign = CROSS;
+    player2Obj.chosenSign = CIRCLE;
+    console.log(true);
+  } else {
+    player1Obj.chosenSign = CIRCLE;
+    player2Obj.chosenSign = CROSS;
+    console.log(initialchosenSign);
   }
 }
 
@@ -107,24 +150,61 @@ function printBoard(board) {
   console.log(thirdRow);
 }
 
-function placeSignToBoard(player, square, board) {
-  if (board[square] === " ") {
-    board[square] = player;
+function placeSignToBoard(square, board, game) {
+  if (board[square] === INITIAL_MARKER) {
+    board[square] = game.currentPlayer.chosenSign;
+    game.takenSquares++;
   } else {
     print(messages.emptySquare);
   }
 }
 
-function checkIfWin(board) {
+function checkIfWin(board, gameNow) {
 
+  let winCombination = [
+    ['a1', 'a2', 'a3'], ['b1', 'b2', 'b3'], ['c1', 'c2', 'c3'],
+    ['d1', 'b1', 'c1'], ['a2', 'b2', 'c2'], ['a3', 'b3', 'c3'],
+    ['a1', 'b2', 'c3']['c1', 'b2', 'a2']
+  ];
+
+  for (let line = 0; line < winCombination.length; line++) {
+    let [sq1, sq2, sq3] = winCombination[line];
+
+    if (
+      board[sq1] === gameNow.currentPlayer.chosenSign &&
+      board[sq2] === gameNow.currentPlayer.chosenSign &&
+      board[sq3] === gameNow.currentPlayer.chosenSign
+    ) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 }
 
 function checkIfTie(board) {
-
+  if (board === 9) {
+    return true;
+  } else {
+    return false;
+  }
 }
 
-// function changeTurn(player, playsWith, gameInfo) {
-//   gameInfo.takenSquares++;
-//   if (currentPlayer)
-//     currentPlayer = 
-// }
+function announceGameStatus(gameNow, message) {
+  if (gameNow) {
+    print(message);
+    console.log(gameNow.points);
+  }
+}
+
+function changeTurn(game) {
+  if (game.currentPlayer.id === 'player1') {
+    game.currentPlayer = player2;
+  } else {
+    game.currentPlayer = player1;
+  }
+}
+
+function playAgain() {
+  console.log('play again');
+}
