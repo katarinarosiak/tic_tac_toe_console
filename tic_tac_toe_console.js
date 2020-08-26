@@ -19,7 +19,6 @@ let gameBoard = {
 
 
 let player1 = {
-  name: "",
   id: 'player1',
   human: true,
   chosenSign: CROSS,
@@ -27,7 +26,6 @@ let player1 = {
 }
 
 let player2 = {
-  name: "",
   id: 'player2',
   human: false,
   chosenSign: CIRCLE,
@@ -39,14 +37,12 @@ let gameStatus = {
   tie: false,
   takenSquares: 0,
   currentPlayer: player1,
-  points: `Scores: Player 1: ${player1.points} points, Player 2: ${player2.points} points`
 }
 
 
 
 
 print(messages.welcome);
-player1.name = print(messages.name);
 
 let validNums = ['1', '2'];
 let playWith = retriveInput(messages.player, messages.playWithValidity, validNums);
@@ -62,29 +58,39 @@ printBoard(gameBoard);
 
 while (!gameStatus.win || !gameStatus.tie) {
   let validSquares = ["a1", "a2", "a3", "b1", "b2", "b3", "c1", "c2", "c3"];
+
+
   let squareId = retriveInput(messages.chooseSquare, messages.ivalidSquare, validSquares);
 
+  while (gameBoard[squareId] !== INITIAL_MARKER) {
+    print(messages.emptySquare)
+    squareId = retriveInput(messages.chooseSquare, messages.ivalidSquare, validSquares);
+  }
   placeSignToBoard(squareId, gameBoard, gameStatus);
   printBoard(gameBoard);
 
   gameStatus.win = checkIfWin(gameBoard, gameStatus);
-  announceGameStatus(gameStatus.win, messages.congratulation);
+  gameStatus.currentPlayer.points++;
+  announceGameStatus(gameStatus.win, messages.congratulation, player1.points, player2.points);
 
   gameStatus.tie = checkIfTie(gameStatus.takenSquares);
-  announceGameStatus(gameStatus.tie, messages.tie);
+  announceGameStatus(gameStatus.tie, messages.tie, player1.points, player2.points);
 
   let validAnswers = ["yes", "Yes", "Y", "y", "No", "NO", "no", "n", "N"];
   if (gameStatus.win || gameStatus.tie) {
     let playAgain = retriveInput(messages.playAgain, messages.invalidYesNo, validAnswers);
-    console.log(playAgain);
-    if (playAgain[0].toLowerCase === 'y') {
-      playAgain();
+
+    if (playAgain.toLowerCase().slice(0, 1) === 'y') {
+      restartGame();
     } else {
       console.log();
       return;
     }
   }
   changeTurn(gameStatus);
+  if (!player2.human) {
+    computerMove();
+  }
 }
 
 
@@ -163,10 +169,10 @@ function checkIfWin(board, gameNow) {
 
   let winCombination = [
     ['a1', 'a2', 'a3'], ['b1', 'b2', 'b3'], ['c1', 'c2', 'c3'],
-    ['d1', 'b1', 'c1'], ['a2', 'b2', 'c2'], ['a3', 'b3', 'c3'],
-    ['a1', 'b2', 'c3']['c1', 'b2', 'a2']
+    ['a1', 'b1', 'c1'], ['a2', 'b2', 'c2'], ['a3', 'b3', 'c3'],
+    ['a1', 'b2', 'c3'], ['c1', 'b2', 'a3']
   ];
-
+  console.log('checking');
   for (let line = 0; line < winCombination.length; line++) {
     let [sq1, sq2, sq3] = winCombination[line];
 
@@ -176,10 +182,9 @@ function checkIfWin(board, gameNow) {
       board[sq3] === gameNow.currentPlayer.chosenSign
     ) {
       return true;
-    } else {
-      return false;
     }
   }
+  return false;
 }
 
 function checkIfTie(board) {
@@ -190,10 +195,10 @@ function checkIfTie(board) {
   }
 }
 
-function announceGameStatus(gameNow, message) {
+function announceGameStatus(gameNow, message, player1Score, player2Score) {
   if (gameNow) {
     print(message);
-    console.log(gameNow.points);
+    console.log(`=> Player 1 has ${player1Score} points and Player 2 has ${player2Score}`);
   }
 }
 
@@ -205,6 +210,18 @@ function changeTurn(game) {
   }
 }
 
-function playAgain() {
+function computerMove() {
+
+}
+
+function restartGame() {
+  clearScreen();
+
   console.log('play again');
+}
+
+function clearScreen() {
+  for (let i = 0; i < 20; i++) {
+    console.log(" ");
+  }
 }
