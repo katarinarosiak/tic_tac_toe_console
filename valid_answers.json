@@ -1,0 +1,32 @@
+{
+  "validNums": [
+    "1",
+    "2"
+  ],
+  "validSigns": [
+    "x",
+    "o"
+  ],
+  "validSquares": [
+    "a1",
+    "a2",
+    "a3",
+    "b1",
+    "b2",
+    "b3",
+    "c1",
+    "c2",
+    "c3"
+  ],
+  "validAnswers": [
+    "yes",
+    "Yes",
+    "Y",
+    "y",
+    "No",
+    "NO",
+    "no",
+    "n",
+    "N"
+  ]
+}

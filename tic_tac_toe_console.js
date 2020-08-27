@@ -1,5 +1,8 @@
 const readline = require('readline-sync');
 const messages = require('./messages_tic_tac_toe.json');
+const VALID_ANSWERS = require('./valid_answers.json');
+
+
 
 const INITIAL_MARKER = ' ';
 const CROSS = 'X'
@@ -44,49 +47,50 @@ let gameStatus = {
 
 print(messages.welcome);
 
-let validNums = ['1', '2'];
-let playWith = retriveInput(messages.player, messages.playWithValidity, validNums);
-
+let playWith = retriveInput(messages.player, messages.playWithValidity, VALID_ANSWERS.validNums);
 updateWhoIsPlaying(playWith, player2);
 
-let validSigns = ["x", "o"];
-let player1chosenSign = retriveInput(messages.chooseSign, messages.signValidity, validSigns);
-
+let player1chosenSign = retriveInput(messages.chooseSign, messages.signValidity, VALID_ANSWERS.validSigns);
 assignSignsToPlayers(player1chosenSign, player1, player2);
 
 printBoard(gameBoard);
 
 while (!gameStatus.win || !gameStatus.tie) {
-  let validSquares = ["a1", "a2", "a3", "b1", "b2", "b3", "c1", "c2", "c3"];
+  console.log(gameBoard);
+  let squareId = retriveInput(messages.chooseSquare, messages.ivalidSquare, VALID_ANSWERS.validSquares);
 
 
-  let squareId = retriveInput(messages.chooseSquare, messages.ivalidSquare, validSquares);
 
   while (gameBoard[squareId] !== INITIAL_MARKER) {
-    print(messages.emptySquare)
-    squareId = retriveInput(messages.chooseSquare, messages.ivalidSquare, validSquares);
+    print(messages.emptySquare);
+    console.log(gameBoard[squareId]);
+    console.log(gameBoard[squareId] !== INITIAL_MARKER);
+    console.log(gameBoard);
+    squareId = retriveInput(messages.chooseSquare, messages.ivalidSquare, VALID_ANSWERS.validSquares);
   }
+
   placeSignToBoard(squareId, gameBoard, gameStatus);
   printBoard(gameBoard);
 
   gameStatus.win = checkIfWin(gameBoard, gameStatus);
-  gameStatus.currentPlayer.points++;
+  incrementPoints(gameStatus);
   announceGameStatus(gameStatus.win, messages.congratulation, player1.points, player2.points);
 
   gameStatus.tie = checkIfTie(gameStatus.takenSquares);
   announceGameStatus(gameStatus.tie, messages.tie, player1.points, player2.points);
-
-  let validAnswers = ["yes", "Yes", "Y", "y", "No", "NO", "no", "n", "N"];
+  console.log(gameStatus);
   if (gameStatus.win || gameStatus.tie) {
-    let playAgain = retriveInput(messages.playAgain, messages.invalidYesNo, validAnswers);
+    let playAgain = retriveInput(messages.playAgain, messages.invalidYesNo, VALID_ANSWERS.validAnswers);
 
     if (playAgain.toLowerCase().slice(0, 1) === 'y') {
-      restartGame();
+      gameBoard = initializeGameBoard(3, INITIAL_MARKER);
+      restartGame(gameStatus, gameBoard);
     } else {
       console.log();
       return;
     }
   }
+
   changeTurn(gameStatus);
   if (!player2.human) {
     computerMove();
@@ -132,11 +136,9 @@ function assignSignsToPlayers(initialchosenSign, player1Obj, player2Obj) {
   if (initialchosenSign === "x") {
     player1Obj.chosenSign = CROSS;
     player2Obj.chosenSign = CIRCLE;
-    console.log(true);
   } else {
     player1Obj.chosenSign = CIRCLE;
     player2Obj.chosenSign = CROSS;
-    console.log(initialchosenSign);
   }
 }
 
@@ -172,7 +174,6 @@ function checkIfWin(board, gameNow) {
     ['a1', 'b1', 'c1'], ['a2', 'b2', 'c2'], ['a3', 'b3', 'c3'],
     ['a1', 'b2', 'c3'], ['c1', 'b2', 'a3']
   ];
-  console.log('checking');
   for (let line = 0; line < winCombination.length; line++) {
     let [sq1, sq2, sq3] = winCombination[line];
 
@@ -195,33 +196,63 @@ function checkIfTie(board) {
   }
 }
 
+function incrementPoints(gameNow) {
+  if (gameNow.win) {
+    gameNow.currentPlayer.points++;
+  }
+}
+
 function announceGameStatus(gameNow, message, player1Score, player2Score) {
   if (gameNow) {
     print(message);
-    console.log(`=> Player 1 has ${player1Score} points and Player 2 has ${player2Score}`);
+    console.log(`=> Player 1 has ${player1Score} points and Player 2 has ${player2Score} points`);
   }
 }
 
 function changeTurn(game) {
   if (game.currentPlayer.id === 'player1') {
     game.currentPlayer = player2;
+    console.log("Your turn player2");
   } else {
     game.currentPlayer = player1;
+    console.log("Your turn player1");
   }
 }
 
 function computerMove() {
-
+  console.log('computer move');
 }
 
-function restartGame() {
+function restartGame(board, game) {
   clearScreen();
-
-  console.log('play again');
+  printBoard(board);
+  resetGameStatus(game);
 }
 
 function clearScreen() {
-  for (let i = 0; i < 20; i++) {
+  for (let i = 0; i < 22; i++) {
     console.log(" ");
   }
 }
+
+function resetGameStatus(game) {
+  game.win = false;
+  game.tie = false;
+  game.takenSquares = 0;
+  game.currentPlayer = player1;
+}
+
+function initializeGameBoard(size, initialVal) {
+  let obj = {};
+  let rows = ['a', 'b', 'c'];
+
+  for (let col = 1; col <= size; col++) {
+    for (let row = 0; row < size; row++) {
+      obj[rows[row] + col] = initialVal;
+    }
+  }
+
+  return obj;
+}
+
+
