@@ -8,6 +8,12 @@ const INITIAL_MARKER = ' ';
 const CROSS = 'X'
 const CIRCLE = "O"
 
+let WIN_COMBINATION = [
+  ['a1', 'a2', 'a3'], ['b1', 'b2', 'b3'], ['c1', 'c2', 'c3'],
+  ['a1', 'b1', 'c1'], ['a2', 'b2', 'c2'], ['a3', 'b3', 'c3'],
+  ['a1', 'b2', 'c3'], ['c1', 'b2', 'a3']
+];
+
 let gameBoard = {
   a1: INITIAL_MARKER,
   a2: INITIAL_MARKER,
@@ -39,6 +45,7 @@ let gameStatus = {
   win: false,
   tie: false,
   takenSquares: 0,
+  round: 0,
   currentPlayer: player1,
 }
 
@@ -56,44 +63,41 @@ assignSignsToPlayers(player1chosenSign, player1, player2);
 printBoard(gameBoard);
 
 while (!gameStatus.win || !gameStatus.tie) {
-  console.log(gameBoard);
+
   let squareId = retriveInput(messages.chooseSquare, messages.ivalidSquare, VALID_ANSWERS.validSquares);
-
-
 
   while (gameBoard[squareId] !== INITIAL_MARKER) {
     print(messages.emptySquare);
-    console.log(gameBoard[squareId]);
-    console.log(gameBoard[squareId] !== INITIAL_MARKER);
-    console.log(gameBoard);
     squareId = retriveInput(messages.chooseSquare, messages.ivalidSquare, VALID_ANSWERS.validSquares);
   }
 
   placeSignToBoard(squareId, gameBoard, gameStatus);
+  clearScreen();
   printBoard(gameBoard);
 
-  gameStatus.win = checkIfWin(gameBoard, gameStatus);
+  gameStatus.win = checkIfWin(gameBoard, gameStatus, WIN_COMBINATION);
   incrementPoints(gameStatus);
   announceGameStatus(gameStatus.win, messages.congratulation, player1.points, player2.points);
 
+
   gameStatus.tie = checkIfTie(gameStatus.takenSquares);
   announceGameStatus(gameStatus.tie, messages.tie, player1.points, player2.points);
-  console.log(gameStatus);
+
+
   if (gameStatus.win || gameStatus.tie) {
     let playAgain = retriveInput(messages.playAgain, messages.invalidYesNo, VALID_ANSWERS.validAnswers);
 
     if (playAgain.toLowerCase().slice(0, 1) === 'y') {
       gameBoard = initializeGameBoard(3, INITIAL_MARKER);
-      restartGame(gameStatus, gameBoard);
+      restartGame(gameBoard, gameStatus, player1, player2);
     } else {
-      console.log();
       return;
     }
   }
 
   changeTurn(gameStatus);
   if (!player2.human) {
-    computerMove();
+    computerMove(gameStatus, WIN_COMBINATION);
   }
 }
 
@@ -157,9 +161,11 @@ function printBoard(board) {
   console.log(line);
   console.log(thirdRow);
 }
-
+function checkIfEmpty(square, board) {
+  return (board[square] === INITIAL_MARKER)
+}
 function placeSignToBoard(square, board, game) {
-  if (board[square] === INITIAL_MARKER) {
+  if (checkIfEmpty(square, board)) {
     board[square] = game.currentPlayer.chosenSign;
     game.takenSquares++;
   } else {
@@ -167,13 +173,8 @@ function placeSignToBoard(square, board, game) {
   }
 }
 
-function checkIfWin(board, gameNow) {
+function checkIfWin(board, gameNow, winCombination) {
 
-  let winCombination = [
-    ['a1', 'a2', 'a3'], ['b1', 'b2', 'b3'], ['c1', 'c2', 'c3'],
-    ['a1', 'b1', 'c1'], ['a2', 'b2', 'c2'], ['a3', 'b3', 'c3'],
-    ['a1', 'b2', 'c3'], ['c1', 'b2', 'a3']
-  ];
   for (let line = 0; line < winCombination.length; line++) {
     let [sq1, sq2, sq3] = winCombination[line];
 
@@ -202,8 +203,9 @@ function incrementPoints(gameNow) {
   }
 }
 
-function announceGameStatus(gameNow, message, player1Score, player2Score) {
+function announceGameStatus(gameNow, message, player1Score, player2Score,) {
   if (gameNow) {
+
     print(message);
     console.log(`=> Player 1 has ${player1Score} points and Player 2 has ${player2Score} points`);
   }
@@ -218,15 +220,63 @@ function changeTurn(game) {
     console.log("Your turn player1");
   }
 }
-
-function computerMove() {
-  console.log('computer move');
+//working on now
+function computerMove(game, winCombination, board) {
+  if (game.takenSquares < 2) {
+    let firstMove = ['a1', 'a3', 'b2', 'c1', 'c3'];
+    let computerChoice = randomChooseBetween(firstMove);
+    while (!checkIfEmpty(computerChoice, board)) {
+      computerChoice = randomChooseBetween(firstMove);
+      placeSignToBoard(computerChoice, board, game);
+    }
+  } else if (game.takenSquares > 2) {
+    computerChoice = chooseIfChanceToWin();
+    if (computerChoice) {
+      computerChoice = computerDefend();
+    }
+    placeSignToBoard(computerChoice, board, game);
+  }
 }
 
-function restartGame(board, game) {
+function randomChooseBetween(squares) {
+  return squares[Math.floor(Math.random() * squares.length)];
+}
+// working on  now
+function chooseIfChanceToWin(board, winCombination) {
+
+  for (let line = 0; line < winCombination.length; line++) {
+    let [sq1, sq2, sq3] = winCombination[line];
+
+    if (
+      (board[sq1] === gameNow.currentPlayer.chosenSign &&
+        board[sq2] === gameNow.currentPlayer.chosenSign)
+      ||
+      (board[sq1] === gameNow.currentPlayer.chosenSign &&
+        board[sq3] === gameNow.currentPlayer.chosenSign)
+      ||
+      (board[sq2] === gameNow.currentPlayer.chosenSign &&
+        board[sq3] === gameNow.currentPlayer.chosenSign)
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function restartGame(board, game, firstPlayer, secondPlayer) {
   clearScreen();
   printBoard(board);
   resetGameStatus(game);
+  game.round++;
+  if (game.round % 2 === 1) {
+    board.currentPlayer = firstPlayer;
+    console.log(game.round);
+    console.log("turn changed to player1");
+  } else {
+    board.currentPlayer = secondPlayer;
+    console.log(game.round);
+    console.log('turn changed to player2');
+  }
 }
 
 function clearScreen() {
@@ -251,8 +301,29 @@ function initializeGameBoard(size, initialVal) {
       obj[rows[row] + col] = initialVal;
     }
   }
-
   return obj;
 }
 
+
+
+//not implemented 
+function printCongratulation() {
+  console.log('')
+  console.log("||  ||   ||   ||  ||    ||    ||    ||   ||     ||  || || ||");
+  console.log(" ||||   ||||  ||  ||    ||    ||   ||||  ||||   ||  || || ||");
+  console.log("  ||   ||  || ||  ||    ||    ||  ||  || || ||  ||  || || ||");
+  console.log("  ||    ||||  ||  ||    || || ||   ||||  ||  || ||          ");
+  console.log("  ||     ||     ||       ||||||     ||   ||   ||||  || || ||");
+  console.log("");
+}
+
+function printTie() {
+  console.log("");
+  console.log("|| |||||||| ||  |||        |||      ||||||||  ||  ||||||   || ||  ||");
+  console.log("||    ||       ||  |      || ||        ||     ||  ||       || || ||");
+  console.log("||    ||        ||       ||   ||       ||     ||  |||      || || ||");
+  console.log("||    ||      |   ||     |||||||       ||     ||  ||         ");
+  console.log("||    ||       ||||     ||     ||      ||     ||  ||||||   || || ||");
+  console.log("");
+}
 
