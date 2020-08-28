@@ -1,15 +1,18 @@
 {
-  "welcome": "   ===+++ WELCOME TO TIC TAC TOE GAME +++=== ",
+  "welcome": "              ===+++ WELCOME TO TIC TAC TOE GAME +++=== ",
   "name": "What is your name?",
+  "worngName": "Please, only type lower or Upper case letters",
   "player": "Choose who do you like to play with: type '1' if you want to play with other player. Type '2' if you want to play with a computer",
   "playWithValidity": "Please enter only number 1 or 2",
   "chooseSign": "Please choose which sign would you like to play with. Type 'x' or 'o'. ",
   "signValidity": "Please enter only 'x' or 'o'.",
   "chooseSquare": "Choose where to put your sign: ",
   "ivalidSquare": "Please choose only lowerCase letters between a-c and numbers between 1-3. For example: a3",
+  "YourTurn": "Your turn ",
   "emptySquare": "Please choose an empty square",
   "congratulation": "Congratulation you have won!",
   "tie": "It's a tie!",
   "playAgain": "Do you want to play again?",
-  "invalidYesNo": "Please answer only yes or no"
+  "invalidYesNo": "Please answer only yes or no",
+  "thankYou": "Thank you for playing Tic Tac Toe! I hope you had a great time!"
 }
