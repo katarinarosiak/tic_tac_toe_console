@@ -63,6 +63,8 @@ updateWhoIsPlaying(playWith, player2);
 
 if (playWith === '1') {
   player2.name = readline.question('What is your name of player 2?');
+} else {
+  gameStatus.level = retriveInput(messages.level, messages.levelValidity, VALID_ANSWERS.validLevel, gameStatus.currentPlayer.name);
 }
 
 let player1chosenSign = retriveInput(messages.chooseSign, messages.signValidity, VALID_ANSWERS.validSigns, gameStatus.currentPlayer.name);
@@ -75,14 +77,15 @@ while (!gameStatus.win || !gameStatus.tie) {
 
   let squareId = '';
   if (gameStatus.currentPlayer.human) {
-    squareId = humanChooseSquare(messages, gameBoard, INITIAL_MARKER, VALID_ANSWERS, gameStatus.currentPlayer.name);
+    squareId = humanChooseSquare(messages.chooseSquare, gameBoard, INITIAL_MARKER, VALID_ANSWERS, gameStatus.currentPlayer.name);
 
-  } else if (gameStatus.level === 1) {
+  } else if (gameStatus.level === "1") {
     squareId = computerChooseSquareEasy(gameBoard);
 
 
-  } else if (gameStatus.level === 2) {
-    squareId = computerChooseSquareHard(gameboard, gameStatus);
+  } else if (gameStatus.level === "2") {
+    squareId = computerChooseSquareHard(gameBoard, gameStatus, WIN_COMBINATION, VALID_ANSWERS.validSquares);
+
   } else {
     squareId = computerChooseSquareExtreme(gameBoard, gameStatus);
   }
@@ -94,14 +97,15 @@ while (!gameStatus.win || !gameStatus.tie) {
   gameStatus.win = checkIfWin(gameBoard, gameStatus, WIN_COMBINATION);
   if (gameStatus.win) {
     incrementPoints(gameStatus);
+    printCongratulation();
     announceGameStatus(messages.congratulation, player1.points, player2.points, gameStatus.currentPlayer.name);
   } else if (!gameStatus.win) {
     gameStatus.tie = checkIfTie(gameStatus.takenSquares);
     if (gameStatus.tie) {
+      printTie();
       announceGameStatus(messages.tie, player1.points, player2.points, gameStatus.currentPlayer.name)
     }
   }
-  changeTurn(gameStatus, gameStatus.currentPlayer.name);
 
   if (gameStatus.win || gameStatus.tie) {
     let playAgain = retriveInput(messages.playAgain, messages.invalidYesNo, VALID_ANSWERS.validAnswers, gameStatus.currentPlayer.name);
@@ -115,6 +119,7 @@ while (!gameStatus.win || !gameStatus.tie) {
       return;
     }
   }
+  changeTurn(gameStatus, gameStatus.currentPlayer.name);
 }
 
 
@@ -181,7 +186,7 @@ function printBoard(board) {
 }
 
 function humanChooseSquare(messages, board, initialMarker, validAnswers, name) {
-  let chosenSquare = retriveInput(messages.chooseSquare, messages.ivalidSquare, VALID_ANSWERS.validSquares);
+  let chosenSquare = retriveInput(messages, messages.ivalidSquare, VALID_ANSWERS.validSquares, name);
 
   while (board[chosenSquare] !== initialMarker) {
     print(messages.emptySquare, name);
@@ -260,47 +265,6 @@ function randomChooseBetween(squares) {
   return squares[Math.floor(Math.random() * squares.length)];
 }
 
-//working on now
-// function computerMove(game, winCombination, board) {
-//   if (game.takenSquares < 2) {
-//     let firstMove = ['a1', 'a3', 'b2', 'c1', 'c3'];
-//     let computerChoice = randomChooseBetween(firstMove);
-//     while (!checkIfEmpty(computerChoice, board)) {
-//       computerChoice = randomChooseBetween(firstMove);
-//       placeSignToBoard(computerChoice, board, game);
-//     }
-//   } else if (game.takenSquares > 2) {
-//     computerChoice = chooseIfChanceToWin();
-//     if (computerChoice) {
-//       computerChoice = computerDefend();
-//     }
-//     placeSignToBoard(computerChoice, board, game);
-//   }
-// }
-
-
-// working on  now
-// function chooseIfChanceToWin(board, winCombination) {
-
-//   for (let line = 0; line < winCombination.length; line++) {
-//     let [sq1, sq2, sq3] = winCombination[line];
-
-//     if (
-//       (board[sq1] === gameNow.currentPlayer.chosenSign &&
-//         board[sq2] === gameNow.currentPlayer.chosenSign)
-//       ||
-//       (board[sq1] === gameNow.currentPlayer.chosenSign &&
-//         board[sq3] === gameNow.currentPlayer.chosenSign)
-//       ||
-//       (board[sq2] === gameNow.currentPlayer.chosenSign &&
-//         board[sq3] === gameNow.currentPlayer.chosenSign)
-//     ) {
-//       return true;
-//     }
-//   }
-//   return false;
-// }
-
 function restartGame(board, game, firstPlayer, secondPlayer, name) {
   clearScreen();
   printBoard(board, name);
@@ -357,20 +321,106 @@ function printCongratulation() {
 
 function printTie() {
   console.log("");
-  console.log("|| |||||||| ||  |||        |||      ||||||||  ||  ||||||   || ||  ||");
-  console.log("||    ||       ||  |      || ||        ||     ||  ||       || || ||");
-  console.log("||    ||        ||       ||   ||       ||     ||  |||      || || ||");
-  console.log("||    ||      |   ||     |||||||       ||     ||  ||         ");
-  console.log("||    ||       ||||     ||     ||      ||     ||  ||||||   || || ||");
+  console.log("      |||      ||||||||  ||  ||||||   || || ||");
+  console.log("     || ||        ||     ||  ||       || || ||");
+  console.log("    ||   ||       ||     ||  |||      || || ||");
+  console.log("    |||||||       ||     ||  ||               ");
+  console.log("   ||     ||      ||     ||  ||||||   || || ||");
   console.log("");
 }
 
 //
 
-function computerChooseSquareHard(board, game) {
-  console.log('computer move hard');
+function computerChooseSquareHard(board, game, winCombination, validSquares) {
+  let computerChoice = undefined;
+  if (game.takenSquares <= 2) {
+    let strategicSquares = ['a1', 'a3', 'b2', 'c1', 'c3'];
+    computerChoice = randomChooseBetween(strategicSquares);
+    while (!checkIfEmpty(computerChoice, board)) {
+      computerChoice = randomChooseBetween(strategicSquares);
+    }
+  } else if (game.takenSquares >= 3) {
+    computerChoice = computerOffense(board, validSquares);
+    if (!computerChoice) {
+      computerDeffense(board, validSquares)
+    } else {
+      computerChoice = randomChooseBetween(strategicSquares);
+      while (!checkIfEmpty(computerChoice, board)) {
+        computerChoice = randomChooseBetween(strategicSquares);
+      }
+    }
+  }
 }
+
+function computerOffense(board, validSquares) {
+  let computerChoice;
+  //loop through winningcombination
+  //compare it to the current board
+  //check if
+  computerChoice = randomChooseBetween(validSquares);
+  while (!checkIfEmpty(computerChoice, board)) {
+    computerChoice = randomChooseBetween(validSquares);
+  }
+  console.log('computer offense');
+  return computerChoice;
+}
+
+function computerDeffense(board, validSquares) {
+  let computerChoice;
+  //loop through winningcombination
+  //compare it to the current board
+  //check if
+  computerChoice = randomChooseBetween(validSquares);
+  while (!checkIfEmpty(computerChoice, board)) {
+    computerChoice = randomChooseBetween(validSquares);
+  }
+  console.log('computer defense');
+  return computerChoice;
+}
+
 
 function computerChooseSquareExtreme(board, game) {
   console.log('computer move extreme');
 }
+
+
+//working on now
+// function computerMove(game, winCombination, board) {
+//   if (game.takenSquares < 2) {
+//     let firstMove = ['a1', 'a3', 'b2', 'c1', 'c3'];
+//     let computerChoice = randomChooseBetween(firstMove);
+//     while (!checkIfEmpty(computerChoice, board)) {
+//       computerChoice = randomChooseBetween(firstMove);
+//       placeSignToBoard(computerChoice, board, game);
+//     }
+//   } else if (game.takenSquares > 2) {
+//     computerChoice = chooseIfChanceToWin();
+//     if (computerChoice) {
+//       computerChoice = computerDefend();
+//     }
+//     placeSignToBoard(computerChoice, board, game);
+//   }
+// }
+
+
+// working on  now
+// function chooseIfChanceToWin(board, winCombination) {
+
+//   for (let line = 0; line < winCombination.length; line++) {
+//     let [sq1, sq2, sq3] = winCombination[line];
+
+//     if (
+//       (board[sq1] === gameNow.currentPlayer.chosenSign &&
+//         board[sq2] === gameNow.currentPlayer.chosenSign)
+//       ||
+//       (board[sq1] === gameNow.currentPlayer.chosenSign &&
+//         board[sq3] === gameNow.currentPlayer.chosenSign)
+//       ||
+//       (board[sq2] === gameNow.currentPlayer.chosenSign &&
+//         board[sq3] === gameNow.currentPlayer.chosenSign)
+//     ) {
+//       return true;
+//     }
+//   }
+//   return false;
+// }

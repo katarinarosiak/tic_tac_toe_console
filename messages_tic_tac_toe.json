@@ -4,6 +4,8 @@
   "worngName": "Please, only type lower or Upper case letters",
   "player": "Choose who do you like to play with: type '1' if you want to play with other player. Type '2' if you want to play with a computer",
   "playWithValidity": "Please enter only number 1 or 2",
+  "level": "Please choose level. 1 - easy, 2 - hard, 3 - extreme",
+  "levelValidity": "Please, choose only numbers 1, 2 or 3",
   "chooseSign": "Please choose which sign would you like to play with. Type 'x' or 'o'. ",
   "signValidity": "Please enter only 'x' or 'o'.",
   "chooseSquare": "Choose where to put your sign: ",
