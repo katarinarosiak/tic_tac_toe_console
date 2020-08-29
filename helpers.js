@@ -67,8 +67,9 @@ function humanChooseSquare(messages, board, initialMarker, validAnswers, name) {
   let chosenSquare = retriveInput(messages.chooseSquare, messages.ivalidSquare, VALID_ANSWERS.validSquares, name);
 
   while (board[chosenSquare] !== initialMarker) {
+
     print(messages.emptySquare, name);
-    chosenSquare = retriveInput(messages.chooseSquare, messages.ivalidSquare, validAnswers.validSquares);
+    chosenSquare = retriveInput(messages.chooseSquare, messages.ivalidSquare, validAnswers.validSquares, name);
   }
   return chosenSquare;
 }
@@ -82,6 +83,7 @@ function placeSignToBoard(messages, square, game, sign) {
     game.gameBoard[square] = game.currentPlayer.chosenSign;
     game.takenSquares++;
   } else {
+    print(messages.emptySquare, game.currentPlayer.name);
     print(messages.emptySquare, game.currentPlayer.name);
   }
 }
@@ -153,6 +155,7 @@ function randomChooseBetween(squares) {
 function restartGame(game, players) {
   clearScreen();
   printBoard(game.gameBoard);
+
   resetGameStatus(game, players);
   game.round++;
   choosePlayerForFirstMove(players, game);
@@ -161,9 +164,9 @@ function restartGame(game, players) {
 function choosePlayerForFirstMove(players, game) {
 
   if (game.round % 2 === 1) {
-    game.gameBoard.currentPlayer = players.firstPlayer;
+    game.currentPlayer = players.player1;
   } else {
-    game.gameBoard.currentPlayer = players.secondPlayer;
+    game.currentPlayer = players.player2;
   }
 }
 
@@ -219,33 +222,35 @@ function printTie() {
 
 
 function computerChooseSquareHard(game, winCombination, validSquares, sign) {
-  let computerChoice = undefined;
+  let computerChoice = "";
   let strategicSquares = ['a1', 'a3', 'b2', 'c1', 'c3'];
   if (game.takenSquares <= 2) {
     computerChoice = randomChooseBetween(strategicSquares);
-    while (!checkIfEmpty(computerChoice, game.GameBoard, sign)) {
+    console.log(computerChoice);
+    while (!checkIfEmpty(computerChoice, game, sign)) {
       computerChoice = randomChooseBetween(strategicSquares);
     }
   } else if (game.takenSquares >= 3) {
-    computerChoice = computerOffense(game.gameBoard, validSquares);
+    computerChoice = computerOffense(game, validSquares);
     if (!computerChoice) {
-      computerDeffense(game.GameBoard, validSquares)
+      computerDeffense(game, validSquares)
     } else {
       computerChoice = randomChooseBetween(strategicSquares);
-      while (!checkIfEmpty(computerChoice, game.gameBoard, sign)) {
+      while (!checkIfEmpty(computerChoice, game, sign)) {
         computerChoice = randomChooseBetween(strategicSquares);
       }
     }
   }
+  return computerChoice;
 }
 
-function computerOffense(board, validSquares, sign) {
+function computerOffense(game, validSquares, sign) {
   let computerChoice;
   //loop through winningcombination
   //compare it to the current board
   //check if
   computerChoice = randomChooseBetween(validSquares);
-  while (!checkIfEmpty(computerChoice, board, sign)) {
+  while (!checkIfEmpty(computerChoice, game, sign)) {
     computerChoice = randomChooseBetween(validSquares);
   }
   console.log('computer offense');
@@ -253,13 +258,13 @@ function computerOffense(board, validSquares, sign) {
 }
 
 
-function computerDeffense(board, validSquares, sign) {
+function computerDeffense(game, validSquares, sign) {
   let computerChoice;
   //loop through winningcombination
   //compare it to the current board
   //check if
   computerChoice = randomChooseBetween(validSquares);
-  while (!checkIfEmpty(computerChoice, board, sign)) {
+  while (!checkIfEmpty(computerChoice, game, sign)) {
     computerChoice = randomChooseBetween(validSquares);
   }
   console.log('computer defense');

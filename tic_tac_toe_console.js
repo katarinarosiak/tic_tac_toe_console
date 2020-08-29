@@ -94,7 +94,7 @@ while (!gameStatus.win || !gameStatus.tie) {
   } else {
     squareId = HELPERS.computerChooseSquareExtreme(gameStatus);
   }
-
+  console.log(gameStatus);
   HELPERS.placeSignToBoard(messages, squareId, gameStatus, signs);
   HELPERS.clearScreen();
   HELPERS.printBoard(gameStatus.gameBoard);
@@ -120,8 +120,9 @@ while (!gameStatus.win || !gameStatus.tie) {
     if (playAgain.toLowerCase().slice(0, 1) === 'y') {
 
       gameStatus.gameBoard = HELPERS.initializeGameBoard(3, signs.initialMarker);
-
+      console.log(gameStatus);
       HELPERS.restartGame(gameStatus, players);
+      console.log(gameStatus);
 
     } else {
       HELPERS.print(messages.thankYou, gameStatus.currentPlayer.name);
