@@ -328,7 +328,62 @@ function returnOtherPlayerSign(sign, currentPlayerSign) {
   }
 }
 
+// ///////////////
+let gameBoard = {
+  'a1': 'X',
+  'a2': 'X',
+  'a3': 'O',
+  'b1': 'O',
+  'b2': ' ',
+  'b3': ' ',
+  'c1': ' ',
+  'c2': 'X',
+  'c3': ' '
+};
 
+currentPlayer = {
+  sign: 'X'
+}
+chooseBestMove(gameBoard, currentPlayer);
+
+let winningCombination = [];
+
+
+function chooseBestMove(board, currentPlayer) {
+  let bestScore = -Infinity;
+  let bestMove;
+  //iterate through all the move
+  for (let key in board) {
+    if (board[key] === ' ') {
+      board[key] = currentPlayer.sign; //place a sign 
+      score = minimax(gameBoard);
+
+      if (score > bestScore) {
+        bestMove = key;
+      }
+    }
+  }
+  //for each move call minimax()
+  //save minimax in the best Score 
+  //if bestSCore < minimax
+  //then save minimax as a BestScore
+  return bestMove;
+}
+
+function minimax(gameBoard) {
+  //   //take the move and check if it's a win
+  //   // if win === true => return 1 and undo move
+  //   //if win === false => return -1 and undo move
+  //   //check if it's a tie return  => 0 and undo move 
+  //   // check all possible moves 
+  //   //if none call minimax()
+  //   // continue until no moves left 
+  console.log('ok');
+  return 1;
+}
+
+
+///////////////////////////////////////
 
 
 
