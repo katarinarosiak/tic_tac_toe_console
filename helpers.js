@@ -92,7 +92,6 @@ function checkIfWin(game, winCombination) {
   for (let line = 0; line < winCombination.length; line++) {
     let [sq1, sq2, sq3] = winCombination[line];
 
-
     if (
       game.gameBoard[sq1] === game.currentPlayer.chosenSign &&
       game.gameBoard[sq2] === game.currentPlayer.chosenSign &&
@@ -115,15 +114,13 @@ function checkIfTie(board) {
 
 
 function incrementPoints(game) {
-  if (game.win) {
-    game.currentPlayer.points++;
-  }
+  game.currentPlayer.points++;
 }
 
 
 function announceGameStatus(message, playerObj, name) {
   print(message, name);
-  console.log(`=> Player 1 has ${playerObj.player1.points} points and Player 2 has ${playerObj.player1.points} points`);
+  console.log(`=> Player 1 has ${playerObj.player1.points} points and Player 2 has ${playerObj.player2.points} points`);
 }
 
 function changeTurn(game, messages, players) {
@@ -257,6 +254,7 @@ function computerOffend(game, sign, winCombination) {
 
   for (let line = 0; line < winCombination.length; line++) {
     let [sq1, sq2, sq3] = winCombination[line];
+
 
     if (
       game.gameBoard[sq1] === game.currentPlayer.chosenSign &&

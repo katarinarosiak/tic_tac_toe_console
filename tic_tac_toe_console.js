@@ -86,7 +86,6 @@ while (!gameStatus.win || !gameStatus.tie) {
 
   } else if (gameStatus.level === "2") {
     squareId = HELPERS.computerChooseSquareHard(gameStatus, WIN_COMBINATION, signs);
-    console.log(squareId);
 
   } else {
     squareId = HELPERS.computerChooseSquareExtreme(gameStatus);
@@ -100,6 +99,7 @@ while (!gameStatus.win || !gameStatus.tie) {
 
   gameStatus.win = HELPERS.checkIfWin(gameStatus, WIN_COMBINATION);
   if (gameStatus.win) {
+
     HELPERS.incrementPoints(gameStatus);
     HELPERS.printCongratulation();
     HELPERS.announceGameStatus(messages.congratulation, players, gameStatus.currentPlayer.name);
