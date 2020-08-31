@@ -56,7 +56,6 @@ let gameStatus = {
 HELPERS.clearScreen();
 HELPERS.print(messages.welcome, ' ');
 
-
 gameStatus.currentPlayer.name = readline.question('What is your name?');
 
 let playWith = HELPERS.retriveInput(messages.player, messages.playWithValidity, VALID_ANSWERS.validNums, gameStatus.currentPlayer.name);
@@ -71,9 +70,6 @@ if (playWith === '1') {
 let player1chosenSign = HELPERS.retriveInput(messages.chooseSign, messages.signValidity, VALID_ANSWERS.validSigns, gameStatus.currentPlayer.name);
 
 HELPERS.assignSignsToPlayers(player1chosenSign, players, signs);
-
-
-
 HELPERS.clearScreen();
 HELPERS.printBoard(gameStatus.gameBoard);
 
@@ -89,14 +85,15 @@ while (!gameStatus.win || !gameStatus.tie) {
 
 
   } else if (gameStatus.level === "2") {
-    squareId = HELPERS.computerChooseSquareHard(gameStatus, WIN_COMBINATION, VALID_ANSWERS.validSquares, signs);
+    squareId = HELPERS.computerChooseSquareHard(gameStatus, WIN_COMBINATION, signs);
+    console.log(squareId);
 
   } else {
     squareId = HELPERS.computerChooseSquareExtreme(gameStatus);
   }
-  console.log(gameStatus);
-  HELPERS.placeSignToBoard(messages, squareId, gameStatus, signs);
+
   HELPERS.clearScreen();
+  HELPERS.placeSignToBoard(messages, squareId, gameStatus, signs);
   HELPERS.printBoard(gameStatus.gameBoard);
 
 
@@ -120,9 +117,9 @@ while (!gameStatus.win || !gameStatus.tie) {
     if (playAgain.toLowerCase().slice(0, 1) === 'y') {
 
       gameStatus.gameBoard = HELPERS.initializeGameBoard(3, signs.initialMarker);
-      console.log(gameStatus);
+
       HELPERS.restartGame(gameStatus, players);
-      console.log(gameStatus);
+
 
     } else {
       HELPERS.print(messages.thankYou, gameStatus.currentPlayer.name);

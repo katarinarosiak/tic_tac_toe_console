@@ -221,55 +221,123 @@ function printTie() {
 }
 
 
-function computerChooseSquareHard(game, winCombination, validSquares, sign) {
+function computerChooseSquareHard(game, winCombination, sign) {
   let computerChoice = "";
   let strategicSquares = ['a1', 'a3', 'b2', 'c1', 'c3'];
+
   if (game.takenSquares <= 2) {
-    computerChoice = randomChooseBetween(strategicSquares);
-    console.log(computerChoice);
-    while (!checkIfEmpty(computerChoice, game, sign)) {
-      computerChoice = randomChooseBetween(strategicSquares);
-    }
+    computerChoice = computerRandomMove(strategicSquares, game, sign);
+
   } else if (game.takenSquares >= 3) {
-    computerChoice = computerOffense(game, validSquares);
+    computerChoice = computerOffend(game, sign, winCombination);
+
     if (!computerChoice) {
-      computerDeffense(game, validSquares)
-    } else {
-      computerChoice = randomChooseBetween(strategicSquares);
-      while (!checkIfEmpty(computerChoice, game, sign)) {
-        computerChoice = randomChooseBetween(strategicSquares);
+      computerChoice = computerDeffend(game, sign, winCombination);
+      if (!computerChoice) {
+        computerChoice = computerRandomMove(strategicSquares, game, sign);
       }
     }
   }
+
   return computerChoice;
 }
 
-function computerOffense(game, validSquares, sign) {
-  let computerChoice;
-  //loop through winningcombination
-  //compare it to the current board
-  //check if
-  computerChoice = randomChooseBetween(validSquares);
+function computerRandomMove(strategicSquares, game, sign) {
+  let computerChoice = randomChooseBetween(strategicSquares);
   while (!checkIfEmpty(computerChoice, game, sign)) {
-    computerChoice = randomChooseBetween(validSquares);
+    computerChoice = randomChooseBetween(strategicSquares);
   }
-  console.log('computer offense');
   return computerChoice;
 }
 
 
-function computerDeffense(game, validSquares, sign) {
+
+function computerOffend(game, sign, winCombination) {
   let computerChoice;
-  //loop through winningcombination
-  //compare it to the current board
-  //check if
-  computerChoice = randomChooseBetween(validSquares);
-  while (!checkIfEmpty(computerChoice, game, sign)) {
-    computerChoice = randomChooseBetween(validSquares);
+
+  for (let line = 0; line < winCombination.length; line++) {
+    let [sq1, sq2, sq3] = winCombination[line];
+
+    if (
+      game.gameBoard[sq1] === game.currentPlayer.chosenSign &&
+      game.gameBoard[sq2] === game.currentPlayer.chosenSign &&
+      game.gameBoard[sq3] === sign.initialMarker
+    ) {
+
+      computerChoice = sq3;
+    } else if (
+      game.gameBoard[sq1] === game.currentPlayer.chosenSign &&
+      game.gameBoard[sq3] === game.currentPlayer.chosenSign &&
+      game.gameBoard[sq2] === sign.initialMarker
+    ) {
+
+      computerChoice = sq2;
+    } else if (
+      game.gameBoard[sq2] === game.currentPlayer.chosenSign &&
+      game.gameBoard[sq3] === game.currentPlayer.chosenSign &&
+      game.gameBoard[sq1] === sign.initialMarker
+    ) {
+
+      computerChoice = sq1;
+    }
   }
-  console.log('computer defense');
   return computerChoice;
 }
+
+
+
+function computerDeffend(game, sign, winCombination) {
+  let computerChoice;
+  let otherPlayerSign = returnOtherPlayerSign(sign, game.currentPlayer.chosenSign);
+
+
+  for (let line = 0; line < winCombination.length; line++) {
+    let [sq1, sq2, sq3] = winCombination[line];
+
+    if (
+      game.gameBoard[sq1] === otherPlayerSign &&
+      game.gameBoard[sq2] === otherPlayerSign &&
+      game.gameBoard[sq3] === sign.initialMarker
+    ) {
+      computerChoice = sq3;
+
+    } else if (
+      game.gameBoard[sq1] === otherPlayerSign &&
+      game.gameBoard[sq3] === otherPlayerSign &&
+      game.gameBoard[sq2] === sign.initialMarker
+    ) {
+      computerChoice = sq2;
+
+    } else if (
+      game.gameBoard[sq2] === otherPlayerSign &&
+      game.gameBoard[sq3] === otherPlayerSign &&
+      game.gameBoard[sq1] === sign.initialMarker
+
+    ) {
+      computerChoice = sq1;
+    }
+  }
+
+  return computerChoice;
+}
+
+
+function returnOtherPlayerSign(sign, currentPlayerSign) {
+  for (let key in sign) {
+    if (sign[key] !== currentPlayerSign && sign[key] !== sign.initialMarker) {
+      return sign[key];
+    }
+  }
+}
+
+
+
+
+
+
+
+
+
 
 module.exports.computerChooseSquareExtreme = computerChooseSquareExtreme;
 
@@ -302,9 +370,10 @@ module.exports.initializeGameBoard = initializeGameBoard;
 module.exports.printCongratulation = printCongratulation;
 module.exports.printTie = printTie;
 module.exports.computerChooseSquareHard = computerChooseSquareHard;
-module.exports.computerOffense = computerOffense;
-module.exports.computerDeffense = computerDeffense;
+module.exports.computerOffense = computerOffend;
+module.exports.computerDeffense = computerDeffend;
 module.exports.computerChooseSquareExtreme = computerChooseSquareExtreme;
+module.exports.returnOtherPlayerSign = returnOtherPlayerSign;
 
 
 //working on now
