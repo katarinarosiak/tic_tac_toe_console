@@ -1,5 +1,5 @@
 {
-  "welcome": "              ===+++ WELCOME TO TIC TAC TOE GAME +++=== ",
+  "welcome": "========+++  WELCOME TO TIC TAC TOE GAME  +++======== ",
   "name": "What is your name?",
   "worngName": "Please, only type lower or Upper case letters",
   "player": "Choose who do you like to play with: type '1' if you want to play with other player. Type '2' if you want to play with a computer",
